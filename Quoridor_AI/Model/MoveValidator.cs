@@ -7,15 +7,31 @@ namespace Quoridor_AI.Model
     {
         public static bool IsValidMove(Cell cell, Player currentPlayer, Player otherPlayer)
         {
-            var possibleMoves = PossibleToMoveCells(currentPlayer, otherPlayer);
+            var possibleMoves = PossibleToMoveCells(currentPlayer, otherPlayer, false);
             return possibleMoves.Any(possibleCell => possibleCell.Coords.Equals(cell.Coords));
         }
-        public static List<Cell> PossibleToMoveCells(Player currentPlayer, Player otherPlayer)
+
+        public static bool IsValidJump(Cell cell, Player currentPlayer, Player otherPlayer)
+        {
+            var possibleMoves = PossibleToMoveCells(currentPlayer, otherPlayer, true);
+            return possibleMoves.Any(possibleCell => possibleCell.Coords.Equals(cell.Coords));
+        }
+        public static List<Cell> PossibleToMoveCells(Player currentPlayer, Player otherPlayer, bool Jumping)
         {
             var possibleToMove = new List<Cell>();
-            possibleToMove = MoveIsValid(currentPlayer, possibleToMove);       
-            possibleToMove = CheckForOtherPlayer(currentPlayer, otherPlayer, possibleToMove);
-            return possibleToMove;
+            IEnumerable<Cell> theRightCells;
+            var possibleToJustMove = MoveIsValid(currentPlayer, possibleToMove);       
+            possibleToMove = CheckForOtherPlayer(currentPlayer, otherPlayer, possibleToJustMove);
+            if (Jumping)
+            {
+                theRightCells = possibleToMove.Except(possibleToJustMove);
+            }
+            else
+            {
+                theRightCells = possibleToMove.Intersect(possibleToJustMove);
+            }
+
+            return new List<Cell>(theRightCells);
         }
         public static bool IsThereAWay(GameState gameState, Player topPlayer, Player bottomPlayer)
         {

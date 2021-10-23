@@ -1,19 +1,18 @@
-﻿using Quoridor;
-using Quoridor_AI.Model;
+﻿using Quoridor_AI.Model;
 
-namespace Quoridor.Controller
+namespace Quoridor_AI.Controller
 {
     public class Controller : IController
     {
-        private Action Action { get; set; }
-        private Cell Cell { get; set; }
-        private Wall Wall { get; set; }
+        private Action? Action { get; set; } = null;
+        private Cell Cell { get; set; } = null;
+        private Wall Wall { get; set; } = null;
 
         public void SetAction(Action action)
         {
             Action = action;
         }
-        public Action GetAction()
+        public Action? GetAction()
         {
             return Action;
         }

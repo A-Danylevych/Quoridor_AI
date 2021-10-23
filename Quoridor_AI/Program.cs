@@ -1,4 +1,5 @@
 ﻿using System;
+using Quoridor_AI.View;
 
 namespace Quoridor_AI
 {
@@ -6,7 +7,13 @@ namespace Quoridor_AI
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var controller = new Controller.Controller();
+            var console = new ConsoleView(controller);
+            while (true)
+            {
+                console.Run();
+            }
+
         }
     }
 }

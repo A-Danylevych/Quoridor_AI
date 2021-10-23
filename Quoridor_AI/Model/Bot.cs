@@ -16,20 +16,35 @@ namespace Quoridor_AI.Model
 			var action = (Action) values.GetValue(index);
             if (WallsCount == 0)
             {
-                action = Action.MakeMove;
+                action = Action.Move;
+            }
+
+            if (action == Action.Jump && 
+                MoveValidator.PossibleToMoveCells(this, otherPlayer, true).Count == 0)
+            {
+                action = Action.Move;
             }
             controller.SetAction(action);
+            
             switch (action)
             {
-                case Action.MakeMove:
+                case Action.Move:
                 {
-                    var cells = MoveValidator.PossibleToMoveCells(this, otherPlayer);
+                    var cells = MoveValidator.PossibleToMoveCells(this, otherPlayer, false);
                     var i = rand.Next(cells.Count);
                     var cell = cells[i];
                     controller.SetCell(cell.Coords.Top, cell.Coords.Left);
                     break;
                 }
-                case Action.PlaceWall:
+                case Action.Jump:
+                {
+                    var cells = MoveValidator.PossibleToMoveCells(this, otherPlayer, true);
+                    var i = rand.Next(cells.Count);
+                    var cell = cells[i];
+                    controller.SetCell(cell.Coords.Top, cell.Coords.Left);
+                    break;
+                }
+                case Action.Wall:
                 {
                     var i = rand.Next(_wallsSpots.Count);
                     var wall = _wallsSpots[i];

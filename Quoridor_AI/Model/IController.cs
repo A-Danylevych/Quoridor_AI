@@ -2,7 +2,7 @@ namespace Quoridor_AI.Model
 {
     public interface IController
     {
-        Action GetAction();
+        Action? GetAction();
         Cell GetCell();
         Wall GetWall();
 

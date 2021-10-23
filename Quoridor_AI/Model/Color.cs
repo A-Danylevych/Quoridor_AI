@@ -1,8 +1,8 @@
 namespace Quoridor_AI.Model
 {
-    internal enum Color
+    public enum Color
     {
-        Red,
-        Green
+        White,
+        Black
     }
 }
