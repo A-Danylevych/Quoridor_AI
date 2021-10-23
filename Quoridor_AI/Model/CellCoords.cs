@@ -1,9 +1,9 @@
-namespace Model
+namespace Quoridor_AI.Model
 {
     public class CellCoords
     {
-        public int Top {get; private set; }
-        public int Left {get; private set; }
+        public int Top {get; }
+        public int Left {get; }
 
         private bool Equals(CellCoords other)
         {
@@ -14,8 +14,7 @@ namespace Model
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((CellCoords) obj);
+            return obj.GetType() == this.GetType() && Equals((CellCoords) obj);
         }
 
         public override int GetHashCode()

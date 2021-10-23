@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 
-namespace Model
+namespace Quoridor_AI.Model
 {
     public class Wall : IPlaceable
     {
         public CellCoords Coords { get; private set;}
         public bool IsVertical { get; private set; }
-        public List<IPlaceable> LeftCell { get; private set; }
-        public List<IPlaceable> RightCell { get; private set; }
-        public List<IPlaceable> UpCell { get; private set; }
-        public List<IPlaceable> DownCell { get; private set; }
+        private List<IPlaceable> LeftCell { get; set; }
+        private List<IPlaceable> RightCell { get; set; }
+        private List<IPlaceable> UpCell { get; set; }
+        private List<IPlaceable> DownCell { get; set; }
         public Wall(CellCoords coords, bool isVertical)
         {
             Coords = coords;

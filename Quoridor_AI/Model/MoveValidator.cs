@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Model
+namespace Quoridor_AI.Model
 {
     internal static class MoveValidator
     {
@@ -59,9 +59,9 @@ namespace Model
             {
                 possibleToMove.Add(leftCell);
             }
-            if(player.CurrentCell.RightCell is Cell RightCell)
+            if(player.CurrentCell.RightCell is Cell rightCell)
             {
-                possibleToMove.Add(RightCell);
+                possibleToMove.Add(rightCell);
             }
             return possibleToMove;
         }

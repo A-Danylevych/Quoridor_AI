@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using Quoridor;
 
-namespace Model
+namespace Quoridor_AI.Model
 {
-    class GameState
+    internal class GameState
     {
         public bool InPlay {get; private set;}
         public List<Cell> TopWinningCells { get; private set;}

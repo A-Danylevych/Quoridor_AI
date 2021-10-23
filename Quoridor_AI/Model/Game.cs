@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
 
-namespace Model
+namespace Quoridor_AI.Model
 {
     public class Game
     {
@@ -15,7 +14,6 @@ namespace Model
         private static Game _instance;
         private readonly Board _board;
         private static readonly object SyncRoot = new object();
-        private bool blocked;
         private Game(IController controller, IViewer viewer, bool withBot)
         {
             Controller = controller;
@@ -28,14 +26,7 @@ namespace Model
         {
             _board.NewBoard();
             var topStartPosition = _board.TopStartPosition();
-            if (withBot)
-            {
-                _topPlayer = new Bot(Color.Green, topStartPosition);
-            }
-            else
-            {
-                _topPlayer = new Player(Color.Green, topStartPosition);
-            }
+            _topPlayer = withBot ? new Bot(Color.Green, topStartPosition) : new Player(Color.Green, topStartPosition);
             var bottomStartPosition = _board.BottomStartPosition();
             _bottomPlayer = new Player(Color.Red, bottomStartPosition);
             _currentPlayer = _bottomPlayer;
@@ -43,7 +34,6 @@ namespace Model
             var topWinningCells = _board.TopWinningCells();
             var bottomWinningCells = _board.BottomWinningCells();
             _gameState = new GameState(topWinningCells, bottomWinningCells);
-            blocked = false;
         }
         private void ChangeCurrentPlayer()
         {
@@ -64,13 +54,12 @@ namespace Model
             if(_currentPlayer is Bot bot)
             {
                 bot.MakeAMove(Controller, _otherPlayer);
-                blocked = false;
                 Update();
             }
         }
-        private bool CheckWinning()
+        private void CheckWinning()
         {
-            return _currentPlayer == _bottomPlayer ? _gameState.CheckBottomWinning(_bottomPlayer) : 
+            var unused = _currentPlayer == _bottomPlayer ? _gameState.CheckBottomWinning(_bottomPlayer) : 
                 _gameState.CheckTopWinning(_topPlayer);
         }
 
@@ -140,10 +129,7 @@ namespace Model
             {
                 lock (SyncRoot)
                 {
-                    if (_instance == null)
-                    {
-                        _instance = new Game(controller, viewer, withBot);
-                    }
+                    _instance ??= new Game(controller, viewer, withBot);
                 }   
             }
             return _instance;

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace Model
+namespace Quoridor_AI.Model
 {
     public interface IViewer
     {

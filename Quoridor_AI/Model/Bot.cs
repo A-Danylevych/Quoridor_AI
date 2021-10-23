@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace Model
+namespace Quoridor_AI.Model
 {
-    class Bot : Player
+    internal class Bot : Player
     {
-        private List<Wall> WallsSpots;
+        private List<Wall> _wallsSpots;
         public void MakeAMove(IController controller, Player otherPlayer)
         {            
             var rand = new Random();
@@ -13,7 +13,7 @@ namespace Model
             var values = type.GetEnumValues();
 
             var index = rand.Next(values.Length);
-			var action = (Action)values.GetValue(index);
+			var action = (Action) values.GetValue(index);
             if (WallsCount == 0)
             {
                 action = Action.MakeMove;
@@ -31,9 +31,9 @@ namespace Model
                 }
                 case Action.PlaceWall:
                 {
-                    var i = rand.Next(WallsSpots.Count);
-                    var wall = WallsSpots[i];
-                    WallsSpots.Remove(wall);
+                    var i = rand.Next(_wallsSpots.Count);
+                    var wall = _wallsSpots[i];
+                    _wallsSpots.Remove(wall);
                     controller.SetWall(wall.Coords.Top, wall.Coords.Left, wall.IsVertical);
                     break;
                 }
@@ -42,7 +42,7 @@ namespace Model
 
         private void WallSpots()
         {
-            WallsSpots = new List<Wall>();
+            _wallsSpots = new List<Wall>();
             FillHorizontal();
             FillVertical();
         }
@@ -56,7 +56,7 @@ namespace Model
                 for (var j = 0; j < 8; j++)
                 {
                     var coord = new CellCoords(top, left);
-                    WallsSpots.Add(new Wall(coord, false));
+                    _wallsSpots.Add(new Wall(coord, false));
                     left += 75;
                 }
                 left = 25;
@@ -72,7 +72,7 @@ namespace Model
                 for (var j = 0; j < 8; j++)
                 {
                     var coord = new CellCoords(top, left);
-                    WallsSpots.Add(new Wall(coord, true));
+                    _wallsSpots.Add(new Wall(coord, true));
                     left += 75;
                 }
                 left = 75;

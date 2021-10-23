@@ -1,6 +1,6 @@
-namespace Model
+namespace Quoridor_AI.Model
 {
-    class Player
+    internal class Player
     {
         public Player(Color color, Cell cell)
         {

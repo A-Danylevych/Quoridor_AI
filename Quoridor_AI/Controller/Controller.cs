@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using Quoridor;
+using Quoridor_AI.Model;
 
 namespace Quoridor.Controller
 {
