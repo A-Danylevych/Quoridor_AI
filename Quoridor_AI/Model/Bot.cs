@@ -111,7 +111,7 @@ namespace Quoridor_AI.Model
                 {
                     visited.Add(neighbor);
                     var (_, score) = Minimax(playerPosition, otherPlayerPosition, depth - 1,
-                        alpha, beta, visited, false);
+                        alpha, beta, visited, true);
                     if (score < best)
                     {
                         best = score;
