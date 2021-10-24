@@ -141,10 +141,10 @@ namespace Quoridor_AI.Model
             }
         }
         
-        private Wall MinimaxWall(Cell otherPlayerPosition, int depth, 
+        private (Wall wall, int wallScore) MinimaxWall(Cell otherPlayerPosition, int depth, 
             int alpha, int beta, ICollection<Cell> visited, bool maximizingPlayer)
         {
-            var (list, _) = Minimax(otherPlayerPosition, CurrentCell, depth, int.MinValue,
+            var (list, score) = Minimax(otherPlayerPosition, CurrentCell, depth, int.MinValue,
                 int.MaxValue, new List<Cell>(), true);
 
             int leftCoord;
@@ -154,23 +154,23 @@ namespace Quoridor_AI.Model
                 if (otherPlayerPosition.Coords.Left == list[0].Coords.Left-75)
                 {
                     leftCoord = otherPlayerPosition.Coords.Left + 50;
-                    return new Wall(new CellCoords(topCoord, leftCoord), true);
+                    return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
                 }
 
                 leftCoord = otherPlayerPosition.Coords.Left - 50;
-                return new Wall(new CellCoords(topCoord, leftCoord), true);
+                return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
             }
 
             leftCoord = otherPlayerPosition.Coords.Left;
             if (otherPlayerPosition.Coords.Top == list[0].Coords.Top - 75)
             {
                 var topCoord = otherPlayerPosition.Coords.Left + 50;
-                return new Wall(new CellCoords(topCoord, leftCoord), false);
+                return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
             }
             else
             {
                 var topCoord = otherPlayerPosition.Coords.Left - 50;
-                return new Wall(new CellCoords(topCoord, leftCoord), false);
+                return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
             }
         }
 
