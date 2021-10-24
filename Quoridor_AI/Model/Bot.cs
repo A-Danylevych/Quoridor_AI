@@ -61,8 +61,8 @@ namespace Quoridor_AI.Model
             }
         }
 
-        private (List<Cell> path, int score) Minimax(Cell playerPosition, Cell otherPlayerPosition, int depth, int alpha, int beta, 
-            ICollection<Cell> visited, bool maximizingPlayer)
+        private (List<Cell> path, int score) Minimax(Cell playerPosition, Cell otherPlayerPosition, int depth, 
+            int alpha, int beta, ICollection<Cell> visited, bool maximizingPlayer)
         {
             var unVisitedNeighbors = playerPosition.GetNeighbors().Except(visited);
             if (!unVisitedNeighbors.Any() || depth == 0)
@@ -101,6 +101,7 @@ namespace Quoridor_AI.Model
                         break;
                     }
                 }
+                return (bestPath, best);
             }
             else
             {
@@ -133,9 +134,9 @@ namespace Quoridor_AI.Model
                         break;
                     }
                 }
-            }
 
-            return (null, 0);
+                return (bestPath, best);
+            }
         }
 
         private void WallSpots()
