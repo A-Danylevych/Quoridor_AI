@@ -28,6 +28,11 @@ namespace Quoridor_AI.View
                 {
                     continue;
                 }
+
+                if (action != Action.Wall && input.Length == 3)
+                {
+                    continue;
+                }
                 SendCommand((Action) action, (Coords) coords);
                 _game.Update();
             }
@@ -64,23 +69,20 @@ namespace Quoridor_AI.View
                 return null;
             }
 
-            if (input.Length == 3)
-            {
-                switch (input[2].ToString().ToUpper())
-                {
-                    case "H":
-                        coords.Vertical = false;
-                        break;
-                    case "V":
-                        coords.Vertical = true;
-                        break;
-                    default:
-                        return null;
-                }
-            }
-            
             coords.SetLeft(left);
             coords.SetTop(top);
+            if (input.Length != 3) return coords;
+            switch (input[2].ToString().ToUpper())
+            {
+                case "H":
+                    coords.SetPosition(false);
+                    break;
+                case "V":
+                    coords.SetPosition(true);
+                    break;
+                default:
+                    return null;
+            }
             return coords;
         }
 
@@ -157,13 +159,15 @@ namespace Quoridor_AI.View
             
             left = (left - firstMember) / difference + 1;
             top = (top - firstMember) / difference + 1;
+            var startSymbol = 65;
             
             if (isWall)
             {
+                startSymbol = 83;
                 left += 9;
             }
 
-            return (char)(65 + (left - 1)) + top.ToString();
+            return (char)(startSymbol + (left - 1)) + top.ToString();
         }
         public void RenderWall(int top, int left, bool isVertical)
         {
@@ -194,7 +198,7 @@ namespace Quoridor_AI.View
     {
         public int Top { get; private set; }
         public int Left { get; private set; }
-        public bool Vertical { get; set; }
+        public bool Vertical { get; private set; }
         private const int FirstMember = 25;
         private const int Difference = 75;
 
@@ -206,6 +210,20 @@ namespace Quoridor_AI.View
         public void SetTop(int index)
         {
             Top = FirstMember + (index - 1) * Difference;
+        }
+
+        public void SetPosition(bool isVertical)
+        {
+            const int offset = 50;
+            Vertical = isVertical;
+            if (isVertical)
+            {
+                Left += offset;
+            }
+            else
+            {
+                Top += offset;
+            }
         }
     }
 }
