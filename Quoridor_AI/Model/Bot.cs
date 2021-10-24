@@ -7,6 +7,7 @@ namespace Quoridor_AI.Model
     internal class Bot : Player
     {
         private List<Wall> _wallsSpots;
+        private int Top;
 
         public void MakeAMove(IController controller, Player otherPlayer)
         {
@@ -179,8 +180,9 @@ namespace Quoridor_AI.Model
             } 
         }
 
-        public Bot(Color color, Cell cell) : base(color, cell)
+        public Bot(Color color, Cell cell, int top) : base(color, cell)
         {
+            Top = top;
             WallSpots();
         }
     }
