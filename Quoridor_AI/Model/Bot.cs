@@ -6,7 +6,12 @@ namespace Quoridor_AI.Model
     internal class Bot : Player
     {
         private List<Wall> _wallsSpots;
+
         public void MakeAMove(IController controller, Player otherPlayer)
+        {
+            MakeARandomMove(controller, otherPlayer);
+        }
+        private void MakeARandomMove(IController controller, Player otherPlayer)
         {            
             var rand = new Random();
             var type = typeof(Action);
@@ -52,6 +57,15 @@ namespace Quoridor_AI.Model
                     controller.SetWall(wall.Coords.Top, wall.Coords.Left, wall.IsVertical);
                     break;
                 }
+            }
+        }
+
+        private void Minimax(Cell playerPosition, Cell otherPlayerPosition, int depth, int alpha, int beta, 
+            List<Cell> visited, bool maximizingPlayer)
+        {
+            if (visited.Count == 81)
+            {
+                
             }
         }
 

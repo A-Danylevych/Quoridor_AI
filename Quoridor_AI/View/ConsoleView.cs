@@ -166,7 +166,6 @@ namespace Quoridor_AI.View
             if (isWall)
             {
                 startSymbol = 83;
-                left += 9;
             }
 
             return (char)(startSymbol + (left - 1)) + top.ToString();
