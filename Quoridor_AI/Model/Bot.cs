@@ -64,7 +64,7 @@ namespace Quoridor_AI.Model
         }
 
         private (List<Cell> path, int score) Minimax(Cell playerPosition, Cell otherPlayerPosition, int depth, 
-            int alpha, int beta, ICollection<Cell> visited, bool maximizingPlayer)
+            int alpha, int beta, ICollection<Cell> visited, bool maximizingPlayer, int targetTop)
         {
             var unVisitedNeighbors = playerPosition.GetNeighbors().Except(visited);
             if (!unVisitedNeighbors.Any() || depth == 0)
@@ -81,7 +81,7 @@ namespace Quoridor_AI.Model
                 {
                     visited.Add(neighbor);
                     var (_, score) = Minimax(playerPosition, otherPlayerPosition, depth - 1,
-                        alpha, beta, visited, false);
+                        alpha, beta, visited, false, targetTop);
                     if (score > best)
                     {
                         best = score;
@@ -114,7 +114,7 @@ namespace Quoridor_AI.Model
                 {
                     visited.Add(neighbor);
                     var (_, score) = Minimax(playerPosition, otherPlayerPosition, depth - 1,
-                        alpha, beta, visited, true);
+                        alpha, beta, visited, true, targetTop);
                     if (score < best)
                     {
                         best = score;
@@ -145,7 +145,7 @@ namespace Quoridor_AI.Model
             int alpha, int beta, ICollection<Cell> visited, bool maximizingPlayer)
         {
             var (list, score) = Minimax(otherPlayerPosition, CurrentCell, depth, int.MinValue,
-                int.MaxValue, new List<Cell>(), true);
+                int.MaxValue, new List<Cell>(), true, _losingTop);
 
             int leftCoord;
             if (otherPlayerPosition.Coords.Top == list[0].Coords.Top)
