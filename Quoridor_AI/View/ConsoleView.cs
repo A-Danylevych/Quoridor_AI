@@ -72,6 +72,8 @@ namespace Quoridor_AI.View
             coords.SetLeft(left);
             coords.SetTop(top);
             if (input.Length != 3) return coords;
+            left -= 18;
+            coords.SetLeft(left);
             switch (input[2].ToString().ToUpper())
             {
                 case "H":
