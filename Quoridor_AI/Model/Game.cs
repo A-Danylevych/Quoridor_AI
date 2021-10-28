@@ -29,13 +29,13 @@ namespace Quoridor_AI.Model
             var bottomStartPosition = _board.BottomStartPosition();
             if (botColor == Color.Black)
             {
-                _topPlayer = new Bot(botColor, topStartPosition, bottomStartPosition.Coords.Top);
                 _bottomPlayer = new Player(Color.White, bottomStartPosition);
+                _topPlayer = new Bot(botColor, topStartPosition, bottomStartPosition.Coords.Top, _bottomPlayer);
             }
             else
             {
-                _bottomPlayer = new Bot(botColor, bottomStartPosition, topStartPosition.Coords.Top);
                 _topPlayer = new Player(Color.Black, topStartPosition);
+                _bottomPlayer = new Bot(botColor, bottomStartPosition, topStartPosition.Coords.Top, _topPlayer);
             }
             _currentPlayer = _bottomPlayer;
             _otherPlayer = _topPlayer;

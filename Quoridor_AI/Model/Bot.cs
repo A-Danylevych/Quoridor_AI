@@ -9,10 +9,23 @@ namespace Quoridor_AI.Model
         private List<Wall> _wallsSpots;
         private int _winningTop;
         private int _losingTop;
+        private Player _enemy;
 
         public void MakeAMove(IController controller, Player otherPlayer)
         {
             MakeARandomMove(controller, otherPlayer);
+            var left = otherPlayer.CurrentCell.Coords.Left;
+            var top = otherPlayer.CurrentCell.Coords.Top;
+            var coords = new CellCoords(top, left);
+            var vertical = true;
+            var wall = new Wall(coords, vertical);
+            controller.SetAction(Action.Jump);
+            controller.SetCell(top, left);
+            
+            //
+            controller.SetAction(Action.Wall);
+            controller.SetWall(top,left, vertical);
+
         }
         private void MakeARandomMove(IController controller, Player otherPlayer)
         {            
@@ -63,10 +76,10 @@ namespace Quoridor_AI.Model
             }
         }
 
-        private (List<Cell> path, int score) Minimax(Cell playerPosition, Cell otherPlayerPosition, int depth, 
-            int alpha, int beta, ICollection<Cell> visited, bool maximizingPlayer, int targetTop)
+        private static (Dictionary<Cell, Action> path, int score) Minimax(Player player, Player otherPlayer, int depth, 
+            int alpha, int beta, Dictionary<Cell, Action> visited, bool maximizingPlayer, int targetTop)
         {
-            var unVisitedNeighbors = playerPosition.GetNeighbors().Except(visited);
+            var unVisitedNeighbors = player.CurrentCell.GetNeighbors().Except(visited.Keys);
             if (!unVisitedNeighbors.Any() || depth == 0)
             {
                 return (null, 0);
@@ -75,101 +88,118 @@ namespace Quoridor_AI.Model
             if (maximizingPlayer)
             {
                 var best = int.MinValue;
-                var bestPath = new List<Cell>(visited);
+                var bestPath = new Dictionary<Cell, Action>(visited);
+                Cell currentBest = null;
                 var placedToPath = false;
-                foreach (var neighbor in playerPosition.GetNeighbors().Except(visited))
+                foreach (var jumping in new[] {false, true})
                 {
-                    visited.Add(neighbor);
-                    var (_, score) = Minimax(playerPosition, otherPlayerPosition, depth - 1,
-                        alpha, beta, visited, false, targetTop);
-                    if (score > best)
+                    foreach (var neighbor in MoveValidator.PossibleToMoveCells(player, otherPlayer,
+                        jumping))
                     {
-                        best = score;
-                        if (placedToPath)
+                        visited[neighbor] = jumping ? Action.Jump : Action.Move;
+                        var (_, score) = Minimax(player, otherPlayer, depth - 1,
+                            alpha, beta, visited, false, targetTop);
+                        if (score > best)
                         {
-                            bestPath.RemoveAt(bestPath.Count -1);
+                            best = score;
+                            if (placedToPath)
+                            {
+                                bestPath.Remove(currentBest);
+                            }
+
+                            placedToPath = true;
+                            currentBest = neighbor;
+
+                            bestPath[neighbor] = jumping ? Action.Jump : Action.Move;
+
                         }
 
-                        placedToPath = true;
-                            
-                        bestPath.Add(neighbor);
-                            
-                    }
-
-                    visited.Remove(neighbor);
-                    alpha = Math.Max(alpha, best);
-                    if(beta <= alpha)
-                    {
-                        break;
+                        visited.Remove(neighbor);
+                        alpha = Math.Max(alpha, best);
+                        if (beta <= alpha)
+                        {
+                            break;
+                        }
                     }
                 }
+
                 return (bestPath, best);
+                
             }
             else
             {
                 var best = int.MaxValue;
-                var bestPath = new List<Cell>(visited);
+                var bestPath = new Dictionary<Cell, Action>(visited);
+                Cell currentBest = null;
                 var placedToPath = false;
-                foreach (var neighbor in playerPosition.GetNeighbors().Except(visited))
+                foreach (var jumping in new[] {false, true})
                 {
-                    visited.Add(neighbor);
-                    var (_, score) = Minimax(playerPosition, otherPlayerPosition, depth - 1,
-                        alpha, beta, visited, true, targetTop);
-                    if (score < best)
+                    foreach (var neighbor in MoveValidator.PossibleToMoveCells(player, otherPlayer, 
+                        jumping))
                     {
-                        best = score;
-                        if (placedToPath)
+                        visited[neighbor] = jumping ? Action.Jump : Action.Move;
+                        var (_, score) = Minimax(player, otherPlayer, depth - 1,
+                            alpha, beta, visited, true, targetTop);
+                        if (score < best)
                         {
-                            bestPath.RemoveAt(bestPath.Count -1);
+                            best = score;
+                            if (placedToPath)
+                            {
+                                bestPath.Remove(currentBest);
+                            }
+
+                            currentBest = neighbor;
+                            placedToPath = true;
+
+                            bestPath[neighbor] = jumping ? Action.Jump : Action.Move;
+
                         }
 
-                        placedToPath = true;
-                            
-                        bestPath.Add(neighbor);
-                            
-                    }
-
-                    visited.Remove(neighbor);
-                    beta = Math.Min(beta, best);
-                    if(beta <= alpha)
-                    {
-                        break;
+                        visited.Remove(neighbor);
+                        beta = Math.Min(beta, best);
+                        if (beta <= alpha)
+                        {
+                            break;
+                        }
                     }
                 }
 
                 return (bestPath, best);
             }
+            
         }
         
-        private (Wall wall, int wallScore) MinimaxWall(Cell otherPlayerPosition, int depth, 
-            int alpha, int beta, ICollection<Cell> visited, bool maximizingPlayer)
+        private (Wall wall, int wallScore) MinimaxWall(Player currentPlayer, Player otherPlayer, int depth)
         {
-            var (list, score) = Minimax(otherPlayerPosition, CurrentCell, depth, int.MinValue,
-                int.MaxValue, new List<Cell>(), true, _losingTop);
-
+            var (dict, score) = Minimax(otherPlayer, currentPlayer, depth, 
+                int.MinValue, int.MaxValue, new Dictionary<Cell, Action>(), true, 
+                _losingTop);
+            
+            var list = new List<Cell>(dict.Keys);
+            
             int leftCoord;
-            if (otherPlayerPosition.Coords.Top == list[0].Coords.Top)
+            if (otherPlayer.CurrentCell.Coords.Top == list[0].Coords.Top)
             {
-                var topCoord = otherPlayerPosition.Coords.Top;
-                if (otherPlayerPosition.Coords.Left == list[0].Coords.Left-75)
+                var topCoord = otherPlayer.CurrentCell.Coords.Top;
+                if (otherPlayer.CurrentCell.Coords.Left == list[0].Coords.Left-75)
                 {
-                    leftCoord = otherPlayerPosition.Coords.Left + 50;
+                    leftCoord = otherPlayer.CurrentCell.Coords.Left + 50;
                     return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
                 }
 
-                leftCoord = otherPlayerPosition.Coords.Left - 50;
+                leftCoord = otherPlayer.CurrentCell.Coords.Left - 50;
                 return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
             }
 
-            leftCoord = otherPlayerPosition.Coords.Left;
-            if (otherPlayerPosition.Coords.Top == list[0].Coords.Top - 75)
+            leftCoord = otherPlayer.CurrentCell.Coords.Left;
+            if (otherPlayer.CurrentCell.Coords.Top == list[0].Coords.Top - 75)
             {
-                var topCoord = otherPlayerPosition.Coords.Left + 50;
+                var topCoord = otherPlayer.CurrentCell.Coords.Left + 50;
                 return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
             }
             else
             {
-                var topCoord = otherPlayerPosition.Coords.Left - 50;
+                var topCoord = otherPlayer.CurrentCell.Coords.Left - 50;
                 return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
             }
         }
@@ -214,9 +244,10 @@ namespace Quoridor_AI.Model
             } 
         }
 
-        public Bot(Color color, Cell cell, int winningTop) : base(color, cell)
+        public Bot(Color color, Cell cell, int winningTop, Player enemy) : base(color, cell)
         {
             _winningTop = winningTop;
+            _enemy = enemy;
             _losingTop = cell.Coords.Top;
             WallSpots();
         }

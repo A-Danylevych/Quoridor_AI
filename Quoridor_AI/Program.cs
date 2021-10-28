@@ -13,7 +13,7 @@ namespace Quoridor_AI
             {
                 console.Run();
             }
-
+            
         }
     }
 }
