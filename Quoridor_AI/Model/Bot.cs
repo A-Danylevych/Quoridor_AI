@@ -9,7 +9,7 @@ namespace Quoridor_AI.Model
         private List<Wall> _wallsSpots;
         private int _winningTop;
         private int _losingTop;
-        private Player _enemy;
+        private Board _board;
 
         public void MakeAMove(IController controller, Player otherPlayer)
         {
@@ -17,7 +17,7 @@ namespace Quoridor_AI.Model
                 int.MaxValue, new Dictionary<Cell, Action>() { { CurrentCell, Action.Move } },
                 true, _winningTop);
             var (wall, wallScore) = MinimaxWall(this, otherPlayer, 3);
-            if (wallScore > score)
+            if (wallScore > score && _board.CanBePlaced(wall))
             {
                 controller.SetAction(Action.Wall);
                 controller.SetWall(wall.Coords.Top, wall.Coords.Left, wall.IsVertical);
@@ -183,10 +183,10 @@ namespace Quoridor_AI.Model
             var list = new List<Cell>(dict.Keys);
             
             int leftCoord;
-            if (otherPlayer.CurrentCell.Coords.Top == list[0].Coords.Top)
+            if (otherPlayer.CurrentCell.Coords.Top == list[1].Coords.Top)
             {
                 var topCoord = otherPlayer.CurrentCell.Coords.Top;
-                if (otherPlayer.CurrentCell.Coords.Left == list[0].Coords.Left-75)
+                if (otherPlayer.CurrentCell.Coords.Left == list[1].Coords.Left-75)
                 {
                     leftCoord = otherPlayer.CurrentCell.Coords.Left + 50;
                     return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
@@ -197,7 +197,7 @@ namespace Quoridor_AI.Model
             }
 
             leftCoord = otherPlayer.CurrentCell.Coords.Left;
-            if (otherPlayer.CurrentCell.Coords.Top == list[0].Coords.Top - 75)
+            if (otherPlayer.CurrentCell.Coords.Top == list[1].Coords.Top - 75)
             {
                 var topCoord = otherPlayer.CurrentCell.Coords.Left + 50;
                 return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
@@ -249,10 +249,10 @@ namespace Quoridor_AI.Model
             } 
         }
 
-        public Bot(Color color, Cell cell, int winningTop, Player enemy) : base(color, cell)
+        public Bot(Color color, Cell cell, int winningTop, Board board) : base(color, cell)
         {
             _winningTop = winningTop;
-            _enemy = enemy;
+            _board = board;
             _losingTop = cell.Coords.Top;
             WallSpots();
         }
