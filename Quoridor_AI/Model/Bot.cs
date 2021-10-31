@@ -82,7 +82,7 @@ namespace Quoridor_AI.Model
             var unVisitedNeighbors = player.CurrentCell.GetNeighbors().Except(visited.Keys);
             if (!unVisitedNeighbors.Any() || depth == 0)
             {
-                return (null, 0);
+                return(visited, Evaluation(visited, targetTop, player.CurrentCell.Coords.Top));   
             }
 
             if (maximizingPlayer)
@@ -250,6 +250,31 @@ namespace Quoridor_AI.Model
             _enemy = enemy;
             _losingTop = cell.Coords.Top;
             WallSpots();
+        }
+
+        private static int Evaluation(Dictionary<Cell, Action> path, int top, int currentTop)
+        {  
+            var value = 0;
+            foreach(var(cell,action) in path)
+            {   
+
+                var tempValue = Math.Abs(currentTop - top) - Math.Abs(cell.Coords.Top - top);
+                currentTop = cell.Coords.Top;
+                var list = cell.GetNeighbors();
+                if(list.Count == 1)
+                {
+                    tempValue = -1000;
+                }
+                if(Action.Move == action)
+                {
+                    value += tempValue;
+                }
+                else
+                {
+                    value += tempValue*2;
+                }
+            }
+            return value;
         }
     }
 }
