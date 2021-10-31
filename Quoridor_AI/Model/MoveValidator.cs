@@ -19,8 +19,9 @@ namespace Quoridor_AI.Model
         public static List<Cell> PossibleToMoveCells(Player currentPlayer, Player otherPlayer, bool jumping)
         {
             IEnumerable<Cell> theRightCells;
-            var possibleToJustMove = new List<Cell>(MoveIsValid(currentPlayer, new List<Cell>()));
-            var possibleToMove = new List<Cell>(CheckForOtherPlayer(currentPlayer, otherPlayer, possibleToJustMove));
+            var possibleToJustMove = MoveIsValid(currentPlayer, new List<Cell>());
+            var possibleToMove = CheckForOtherPlayer(currentPlayer, otherPlayer, 
+                new List<Cell>(possibleToJustMove));
             theRightCells = jumping ? possibleToMove.Except(possibleToJustMove) :
                 possibleToMove.Intersect(possibleToJustMove);
 
