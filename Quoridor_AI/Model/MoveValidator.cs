@@ -16,20 +16,14 @@ namespace Quoridor_AI.Model
             var possibleMoves = PossibleToMoveCells(currentPlayer, otherPlayer, true);
             return possibleMoves.Any(possibleCell => possibleCell.Coords.Equals(cell.Coords));
         }
-        public static List<Cell> PossibleToMoveCells(Player currentPlayer, Player otherPlayer, bool Jumping)
+        public static List<Cell> PossibleToMoveCells(Player currentPlayer, Player otherPlayer, bool jumping)
         {
-            var possibleToMove = new List<Cell>();
             IEnumerable<Cell> theRightCells;
-            var possibleToJustMove = MoveIsValid(currentPlayer, possibleToMove);       
-            possibleToMove = CheckForOtherPlayer(currentPlayer, otherPlayer, possibleToJustMove);
-            if (Jumping)
-            {
-                theRightCells = possibleToMove.Except(possibleToJustMove);
-            }
-            else
-            {
-                theRightCells = possibleToMove.Intersect(possibleToJustMove);
-            }
+            var possibleToJustMove = new List<Cell>(MoveIsValid(currentPlayer, new List<Cell>()));
+            var possibleToMove = new List<Cell>(CheckForOtherPlayer(currentPlayer, otherPlayer, possibleToJustMove));
+            theRightCells = jumping ? possibleToMove.Except(possibleToJustMove) :
+                possibleToMove.Intersect(possibleToJustMove);
+
 
             return new List<Cell>(theRightCells);
         }

@@ -13,18 +13,22 @@ namespace Quoridor_AI.Model
 
         public void MakeAMove(IController controller, Player otherPlayer)
         {
-            MakeARandomMove(controller, otherPlayer);
-            var left = otherPlayer.CurrentCell.Coords.Left;
-            var top = otherPlayer.CurrentCell.Coords.Top;
-            var coords = new CellCoords(top, left);
-            var vertical = true;
-            var wall = new Wall(coords, vertical);
-            controller.SetAction(Action.Jump);
-            controller.SetCell(top, left);
-            
-            //
-            controller.SetAction(Action.Wall);
-            controller.SetWall(top,left, vertical);
+            var (path, score) = Minimax(this, otherPlayer, 3, int.MinValue,
+                int.MaxValue, new Dictionary<Cell, Action>() { { CurrentCell, Action.Move } },
+                true, _winningTop);
+            var (wall, wallScore) = MinimaxWall(this, otherPlayer, 3);
+            if (wallScore > score)
+            {
+                controller.SetAction(Action.Wall);
+                controller.SetWall(wall.Coords.Top, wall.Coords.Left, wall.IsVertical);
+            }
+            else
+            {
+                var cells = new List<Cell>(path.Keys);
+                var actions = new List<Action>(path.Values);
+                controller.SetAction(actions[1]);
+                controller.SetCell(cells[1].Coords.Top, cells[1].Coords.Left);
+            }
 
         }
         private void MakeARandomMove(IController controller, Player otherPlayer)
@@ -256,8 +260,8 @@ namespace Quoridor_AI.Model
         private static int Evaluation(Dictionary<Cell, Action> path, int top, int currentTop)
         {  
             var value = 0;
-            foreach(var(cell,action) in path)
-            {   
+            foreach (var(cell,action) in path)
+            {
 
                 var tempValue = Math.Abs(currentTop - top) - Math.Abs(cell.Coords.Top - top);
                 currentTop = cell.Coords.Top;

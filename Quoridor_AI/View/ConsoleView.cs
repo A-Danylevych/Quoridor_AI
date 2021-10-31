@@ -17,7 +17,7 @@ namespace Quoridor_AI.View
             while (_gameNotEnded)
             {
                 var input = ReadCommand();
-                if (input is not {Length: 2})
+                if (input.Length != 2)
                 {
                     continue;
                 }
@@ -61,7 +61,7 @@ namespace Quoridor_AI.View
 
         private static Coords? ReadCoords(string input)
         {
-            if (input.Length is not (2 or 3)) return null;
+            if (input.Length != 2 && input.Length != 3) return null;
             Coords coords = default;
             var left = char.ToUpper(input[0]) - 64;
             if (!int.TryParse(input[1].ToString(), out var top))
