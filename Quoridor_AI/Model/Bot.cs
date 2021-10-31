@@ -168,11 +168,12 @@ namespace Quoridor_AI.Model
             }
             
         }
-        
+
         private (Wall wall, int wallScore) MinimaxWall(Player currentPlayer, Player otherPlayer, int depth)
         {
             var (dict, score) = Minimax(otherPlayer, currentPlayer, depth, 
-                int.MinValue, int.MaxValue, new Dictionary<Cell, Action>(), true, 
+                int.MinValue, int.MaxValue, new Dictionary<Cell, Action>()
+                    {{otherPlayer.CurrentCell, Action.Move}}, true, 
                 _losingTop);
             
             var list = new List<Cell>(dict.Keys);
