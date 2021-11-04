@@ -389,7 +389,6 @@ namespace Quoridor_AI.Model
             const int cellDistance = 75;
             foreach (var (cell, action) in path)
             {
-
                 var tempValue = Math.Abs(currentTop - top) - Math.Abs(cell.Coords.Top - top);
                 currentTop = cell.Coords.Top;
                 var (road,_) = AStar(cell, top);
@@ -402,7 +401,6 @@ namespace Quoridor_AI.Model
                 {
                     tempValue = int.MinValue;
                 }
-
                 if (Action.Move == action)
                 {
                     value += tempValue;
@@ -411,10 +409,8 @@ namespace Quoridor_AI.Model
                 {
                     value += coef*tempValue * 2;
                 }
-
                 coef *= -1;
             }
-
             return value;
         }
 
@@ -429,12 +425,10 @@ namespace Quoridor_AI.Model
 
             while (queue.TryDequeue(out var item, out var priority))
             {
-
                 if (item.Coords.Top == goal)
                 {
                     return (cameFrom, item);
                 }
-
                 foreach (var next in item.GetNeighbors())
                 {
                     var newCost = costSoFar[item] + 1;
@@ -445,7 +439,6 @@ namespace Quoridor_AI.Model
                     cameFrom[next] = item;
                 }
             }
-
             return (null, null);
         }
 
