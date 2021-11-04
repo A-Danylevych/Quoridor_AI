@@ -267,6 +267,9 @@ namespace Quoridor_AI.Model
             var list = new List<Cell>(dict.Keys);
             var actions = new List<Action>(dict.Values);
 
+            const int cellDistance = 75;
+            const int rightDownWall = 50;
+            const int leftUpWall = 25;
             int leftCoord;
             if (actions[1] == Action.Move)
             {
@@ -275,31 +278,31 @@ namespace Quoridor_AI.Model
                 if (otherPlayer.CurrentCell.Coords.Top == cell.Coords.Top)
                 {
                     var topCoord = otherPlayer.CurrentCell.Coords.Top;
-                    if (otherPlayer.CurrentCell.Coords.Left - 75 == cell.Coords.Left)
+                    if (otherPlayer.CurrentCell.Coords.Left -  cellDistance == cell.Coords.Left)
                     {
-                        leftCoord = otherPlayer.CurrentCell.Coords.Left - 25;
+                        leftCoord = otherPlayer.CurrentCell.Coords.Left - leftUpWall;
                         return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
                     }
 
-                    leftCoord = otherPlayer.CurrentCell.Coords.Left + 50;
+                    leftCoord = otherPlayer.CurrentCell.Coords.Left + rightDownWall;
                     return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
                 }
 
                 leftCoord = otherPlayer.CurrentCell.Coords.Left;
-                if (otherPlayer.CurrentCell.Coords.Top - 75 == cell.Coords.Top)
+                if (otherPlayer.CurrentCell.Coords.Top - cellDistance == cell.Coords.Top)
                 {
-                    var topCoord = otherPlayer.CurrentCell.Coords.Top - 25;
+                    var topCoord = otherPlayer.CurrentCell.Coords.Top - leftUpWall;
                     return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
                 }
                 else
                 {
-                    var topCoord = otherPlayer.CurrentCell.Coords.Top + 50;
+                    var topCoord = otherPlayer.CurrentCell.Coords.Top + rightDownWall;
                     return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
                 }
             }
 
             if (Math.Abs(currentPlayer.CurrentCell.Coords.Top - _losingTop) 
-> Math.Abs(otherPlayer.CurrentCell.Coords.Top - _losingTop))
+                > Math.Abs(otherPlayer.CurrentCell.Coords.Top - _losingTop))
             {
                 return (new Wall(new CellCoords(0, 0), true), int.MinValue);
             }
@@ -307,25 +310,25 @@ namespace Quoridor_AI.Model
             if (otherPlayer.CurrentCell.Coords.Top == currentPlayer.CurrentCell.Coords.Top)
             {
                 var topCoord = otherPlayer.CurrentCell.Coords.Top;
-                if (otherPlayer.CurrentCell.Coords.Left - 75 == currentPlayer.CurrentCell.Coords.Left)
+                if (otherPlayer.CurrentCell.Coords.Left - cellDistance == currentPlayer.CurrentCell.Coords.Left)
                 {
-                    leftCoord = otherPlayer.CurrentCell.Coords.Left - 25;
+                    leftCoord = otherPlayer.CurrentCell.Coords.Left - leftUpWall;
                     return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
                 }
 
-                leftCoord = otherPlayer.CurrentCell.Coords.Left + 50;
+                leftCoord = otherPlayer.CurrentCell.Coords.Left + rightDownWall;
                 return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
             }
 
             leftCoord = otherPlayer.CurrentCell.Coords.Left;
-            if (otherPlayer.CurrentCell.Coords.Top - 75 == currentPlayer.CurrentCell.Coords.Top)
+            if (otherPlayer.CurrentCell.Coords.Top - cellDistance == currentPlayer.CurrentCell.Coords.Top)
             {
-                var topCoord = otherPlayer.CurrentCell.Coords.Left - 25;
+                var topCoord = otherPlayer.CurrentCell.Coords.Left - leftUpWall;
                 return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
             }
             else
             {
-                var topCoord = otherPlayer.CurrentCell.Coords.Left + 50;
+                var topCoord = otherPlayer.CurrentCell.Coords.Left + rightDownWall;
                 return (new Wall(new CellCoords(topCoord, leftCoord), false), score);
             }
         }
