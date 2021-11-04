@@ -386,6 +386,7 @@ namespace Quoridor_AI.Model
         {
             var value = 0;
             var coef = -1;
+            const int cellDistance = 75;
             foreach (var (cell, action) in path)
             {
 
@@ -394,12 +395,12 @@ namespace Quoridor_AI.Model
                 var (road,_) = AStar(cell, top);
                 if (road != null)
                 {
-                    tempValue -= 75 * road.Count;
+                    tempValue -= cellDistance * road.Count;
                 }
                 var list = cell.GetNeighbors();
                 if (list.Count == 1)
                 {
-                    tempValue = -1000;
+                    tempValue = int.MinValue;
                 }
 
                 if (Action.Move == action)
