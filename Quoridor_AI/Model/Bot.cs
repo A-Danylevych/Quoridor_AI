@@ -387,6 +387,7 @@ namespace Quoridor_AI.Model
             var value = 0;
             var coef = -1;
             const int cellDistance = 75;
+            const int deadlockScore = -100000;
             foreach (var (cell, action) in path)
             {
                 var tempValue = Math.Abs(currentTop - top) - Math.Abs(cell.Coords.Top - top);
@@ -399,7 +400,7 @@ namespace Quoridor_AI.Model
                 var list = cell.GetNeighbors();
                 if (list.Count == 1)
                 {
-                    tempValue = int.MinValue;
+                    tempValue = deadlockScore;
                 }
                 if (Action.Move == action)
                 {
