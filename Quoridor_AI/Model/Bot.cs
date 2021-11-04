@@ -20,7 +20,7 @@ namespace Quoridor_AI.Model
             var (wall, wallScore) = MinimaxWall(this, otherPlayer, 3);
             
             var jumpingCells = MoveValidator.PossibleToMoveCells(this, otherPlayer, true);
-            if (jumpingCells.Count>0)
+            if (jumpingCells.Count > 0)
             {
                 foreach (var jump in jumpingCells.Where(jump => Math.Abs(jump.Coords.Top - _winningTop) 
                     - Math.Abs(CurrentCell.Coords.Top - _winningTop) < 0))
@@ -278,7 +278,7 @@ namespace Quoridor_AI.Model
                 if (otherPlayer.CurrentCell.Coords.Top == cell.Coords.Top)
                 {
                     var topCoord = otherPlayer.CurrentCell.Coords.Top;
-                    if (otherPlayer.CurrentCell.Coords.Left -  cellDistance == cell.Coords.Left)
+                    if (otherPlayer.CurrentCell.Coords.Left - cellDistance == cell.Coords.Left)
                     {
                         leftCoord = otherPlayer.CurrentCell.Coords.Left - leftUpWall;
                         return (new Wall(new CellCoords(topCoord, leftCoord), true), score);
