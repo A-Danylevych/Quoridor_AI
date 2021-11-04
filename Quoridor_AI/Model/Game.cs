@@ -25,23 +25,23 @@ namespace Quoridor_AI.Model
         public void NewGame(Color botColor)
         {
             _board.NewBoard();
+            var topWinningCells = _board.TopWinningCells();
+            var bottomWinningCells = _board.BottomWinningCells();
+            _gameState = new GameState(topWinningCells, bottomWinningCells);
             var topStartPosition = _board.TopStartPosition();
             var bottomStartPosition = _board.BottomStartPosition();
             if (botColor == Color.Black)
             {
                 _bottomPlayer = new Player(Color.White, bottomStartPosition);
-                _topPlayer = new Bot(botColor, topStartPosition, bottomStartPosition.Coords.Top, _board);
+                _topPlayer = new Bot(botColor, topStartPosition, bottomStartPosition.Coords.Top, _board, _gameState);
             }
             else
             {
                 _topPlayer = new Player(Color.Black, topStartPosition);
-                _bottomPlayer = new Bot(botColor, bottomStartPosition, topStartPosition.Coords.Top, _board);
+                _bottomPlayer = new Bot(botColor, bottomStartPosition, topStartPosition.Coords.Top, _board, _gameState);
             }
             _currentPlayer = _bottomPlayer;
             _otherPlayer = _topPlayer;
-            var topWinningCells = _board.TopWinningCells();
-            var bottomWinningCells = _board.BottomWinningCells();
-            _gameState = new GameState(topWinningCells, bottomWinningCells);
         }
         private void ChangeCurrentPlayer()
         {

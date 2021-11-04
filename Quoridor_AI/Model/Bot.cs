@@ -7,29 +7,114 @@ namespace Quoridor_AI.Model
     internal class Bot : Player
     {
         private List<Wall> _wallsSpots;
-        private int _winningTop;
-        private int _losingTop;
-        private Board _board;
-
+        private readonly int _winningTop;
+        private readonly int _losingTop;
+        private readonly Board _board;
+        private readonly GameState _gameState;
+        private readonly bool _topPlayer;
         public void MakeAMove(IController controller, Player otherPlayer)
         {
             var (path, score) = Minimax(this, otherPlayer, 3, int.MinValue,
-                int.MaxValue, new Dictionary<Cell, Action>() { { CurrentCell, Action.Move } },
+                int.MaxValue, new Dictionary<Cell, Action>() {{CurrentCell, Action.Move}},
                 true, _winningTop);
             var (wall, wallScore) = MinimaxWall(this, otherPlayer, 3);
-            if (wallScore > score && _board.CanBePlaced(wall))
+            
+            var jumpingCells = MoveValidator.PossibleToMoveCells(this, otherPlayer, true);
+            if (jumpingCells.Count>0)
             {
-                controller.SetAction(Action.Wall);
-                controller.SetWall(wall.Coords.Top, wall.Coords.Left, wall.IsVertical);
+                foreach (var jump in jumpingCells.Where(jump => Math.Abs(jump.Coords.Top - _winningTop) 
+                    - Math.Abs(CurrentCell.Coords.Top - _winningTop) < 0))
+                {
+                    controller.SetAction(Action.Jump);
+                    controller.SetCell(jump.Coords.Top,jump.Coords.Left);
+                    return;
+                }
+            }
+            Player topPlayer;
+            Player bottomPlayer;
+            if (_topPlayer)
+            {
+                topPlayer = this;
+                bottomPlayer = otherPlayer;
             }
             else
             {
-                var cells = new List<Cell>(path.Keys);
-                var actions = new List<Action>(path.Values);
+                topPlayer = otherPlayer;
+                bottomPlayer = this;
+            }
+            if (wallScore > score && _board.CanBePlaced(wall) && PlaceWall())
+            {
+                _board.PutWall(wall);
+                if (MoveValidator.IsThereAWay(_gameState, topPlayer, bottomPlayer))
+                {
+                    controller.SetAction(Action.Wall);
+                    controller.SetWall(wall.Coords.Top, wall.Coords.Left, wall.IsVertical);
+                    UnPlaceWall();
+                    _board.DropWall(wall);
+                    return;
+                }
+                _board.DropWall(wall);
+            }
+            
+            var cells = new List<Cell>(path.Keys);
+            var actions = new List<Action>(path.Values);
+            var (road, goal) = AStar(CurrentCell, _winningTop);
+            var cell = GetCell(road, CurrentCell, goal);
+            if (actions[1] == Action.Jump || !MoveValidator.IsValidMove(cell, this, otherPlayer))
+            {
+                if (actions[1] == Action.Jump && !MoveValidator.IsValidJump(cells[1], this, otherPlayer))
+                {
+                    if (CurrentCell.GetNeighbors().Any(neighbor => 
+                        MoveValidator.IsValidMove(neighbor, this, otherPlayer)))
+                    {
+                        controller.SetAction(actions[1]);
+                        controller.SetCell(cells[1].Coords.Top, cells[1].Coords.Left);
+                        return;
+                    }
+                }
                 controller.SetAction(actions[1]);
                 controller.SetCell(cells[1].Coords.Top, cells[1].Coords.Left);
+                return;
             }
 
+            var temp = CurrentCell;
+            _board.MovePlayer(this, cell);
+            if (MoveValidator.PossibleToMoveCells(otherPlayer, this, true).Count > 0 && 
+                Math.Abs(temp.Coords.Top - _winningTop - 25)/75 -
+                Math.Abs(otherPlayer.CurrentCell.Coords.Top - _losingTop - 25)/75 < 0)
+            {
+                _board.MovePlayer(this, temp);
+                var list = new List<Cell>();
+                if (CurrentCell.LeftCell is not Wall)
+                {
+                    list.Add((Cell)CurrentCell.LeftCell);
+                }
+
+                if (CurrentCell.RightCell is not Wall)
+                {
+                    list.Add((Cell)CurrentCell.RightCell);
+                }
+                list.Add(cell);
+                foreach (var neighbor in list.Where(neighbor => 
+                    MoveValidator.IsValidMove(neighbor, this, otherPlayer)))
+                {
+                    var tempCell = CurrentCell;
+                    _board.MovePlayer(this, neighbor);
+                    if (MoveValidator.PossibleToMoveCells(otherPlayer,this, true).Count>0)
+                    {
+                        _board.MovePlayer(this, tempCell);
+                        continue;
+                    }
+                    _board.MovePlayer(this, tempCell);
+                    controller.SetAction(Action.Move);
+                    controller.SetCell(neighbor.Coords.Top, neighbor.Coords.Left);
+                    return;
+                }
+            }
+            _board.MovePlayer(this, temp);
+            
+            controller.SetAction(Action.Move);
+            controller.SetCell(cell.Coords.Top,cell.Coords.Left);
         }
         private void MakeARandomMove(IController controller, Player otherPlayer)
         {            
@@ -94,7 +179,7 @@ namespace Quoridor_AI.Model
                 var best = int.MinValue;
                 var bestPath = new Dictionary<Cell, Action>(visited);
                 Cell currentBest = null;
-                var placedToPath = false;
+                var placedToPath = false;    
                 foreach (var jumping in new[] {false, true})
                 {
                     foreach (var neighbor in MoveValidator.PossibleToMoveCells(player, otherPlayer,
@@ -138,7 +223,7 @@ namespace Quoridor_AI.Model
                 var placedToPath = false;
                 foreach (var jumping in new[] {false, true})
                 {
-                    foreach (var neighbor in MoveValidator.PossibleToMoveCells(player, otherPlayer, 
+                    foreach (var neighbor in MoveValidator.PossibleToMoveCells(player, otherPlayer,
                         jumping))
                     {
                         visited[neighbor] = jumping ? Action.Jump : Action.Move;
@@ -170,7 +255,6 @@ namespace Quoridor_AI.Model
 
                 return (bestPath, best);
             }
-            
         }
 
         private (Wall wall, int wallScore) MinimaxWall(Player currentPlayer, Player otherPlayer, int depth)
@@ -249,37 +333,92 @@ namespace Quoridor_AI.Model
             } 
         }
 
-        public Bot(Color color, Cell cell, int winningTop, Board board) : base(color, cell)
+        public Bot(Color color, Cell cell, int winningTop, Board board, GameState gameState) : base(color, cell)
         {
             _winningTop = winningTop;
             _board = board;
+            _gameState = gameState;
             _losingTop = cell.Coords.Top;
+            _topPlayer = color == Color.Black;
             WallSpots();
         }
 
         private static int Evaluation(Dictionary<Cell, Action> path, int top, int currentTop)
-        {  
+        {
             var value = 0;
-            foreach (var(cell,action) in path)
+            var coef = -1;
+            foreach (var (cell, action) in path)
             {
 
                 var tempValue = Math.Abs(currentTop - top) - Math.Abs(cell.Coords.Top - top);
                 currentTop = cell.Coords.Top;
+                var (road,_) = AStar(cell, top);
+                if (road != null)
+                {
+                    tempValue -= 75 * road.Count;
+                }
                 var list = cell.GetNeighbors();
-                if(list.Count == 1)
+                if (list.Count == 1)
                 {
                     tempValue = -1000;
                 }
-                if(Action.Move == action)
+
+                if (Action.Move == action)
                 {
                     value += tempValue;
                 }
                 else
                 {
-                    value += tempValue*2;
+                    value += coef*tempValue * 2;
+                }
+
+                coef *= -1;
+            }
+
+            return value;
+        }
+
+        private static (Dictionary<Cell, Cell> path, Cell goal) AStar(Cell start, int goal)
+        {
+            var queue = new PriorityQueue<Cell>();
+            queue.Add(start, 0);
+            var cameFrom = new Dictionary<Cell, Cell>();
+            var costSoFar = new Dictionary<Cell, int>();
+            cameFrom[start] = null;
+            costSoFar[start] = 0;
+
+            while (queue.TryDequeue(out var item, out var priority))
+            {
+
+                if (item.Coords.Top == goal)
+                {
+                    return (cameFrom, item);
+                }
+
+                foreach (var next in item.GetNeighbors())
+                {
+                    var newCost = costSoFar[item] + 1;
+                    if (costSoFar.ContainsKey(next) && newCost >= costSoFar[next]) continue;
+                    costSoFar[next] = newCost;
+                    priority = newCost + Math.Abs(next.Coords.Top - goal)- Math.Abs(item.Coords.Top - goal);
+                    queue.Add(next, priority);
+                    cameFrom[next] = item;
                 }
             }
-            return value;
+
+            return (null, null);
+        }
+
+        private static Cell GetCell(IReadOnlyDictionary<Cell, Cell> path, Cell start, Cell goal)
+        {
+            var road = new List<Cell>();
+            var current = goal;
+            while (current != start)
+            {
+                road.Add(current);
+                current = path[current];
+            }
+            return road[^1];
         }
     }
 }
